@@ -47,3 +47,8 @@ save_to_file(filename, user_input)
 
 Для того, щоб бот розпізнавав, яку тему хоче обрати користувач, 
 потрібно до функції ``def check_input(split_input)`` додати рядок виду:
+```python
+  determine(split_input, "назва розпізнаної теми",\
+  [список, зі, слів, по, яким, можна, розпізнати, цю, тему], \
+  single_response=True, reqired_words=[])
+  ```
