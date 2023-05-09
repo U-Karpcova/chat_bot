@@ -1,0 +1,1173 @@
+import sys
+from contextlib import contextmanager
+import random
+import re
+from colorama import init, Fore, Back, Style
+init()
+
+import datetime
+now = datetime.datetime.now()
+filename = "Діалог-{}.txt".format(now.strftime("%Y-%m-%d-%H-%M-%S"))
+
+import math
+
+init(autoreset=True)
+
+#скорочені назви тем:
+find_B_topic = 'знайти координати точки В, \
+якщо відомо координати точки А та відстань до неї'
+gcd_or_lcm_topic = 'обчислити найбільший спільний дільник чи найменше спільне кратне'
+scal_prod_by_length_topic = 'обчислення скалярного добутку за довжиною векторів і кутом'
+scal_prod_by_coordinates_topic = 'обчислення скалярного добутку за координатами векторів'
+
+
+#функції:
+def save_to_file(file, data):
+    with open(file, 'a') as f:
+        f.write(data + '\n')
+
+           #DRY functions:
+def checkForBackExit(user_input):
+ if user_input == 'back':
+      return 'back'
+ if user_input == 'exit':
+      return 'exit'
+
+def enter_number(instruction, topic):
+ while True:
+   num = input(f'{instruction}: ')
+   save_to_file(filename, num)
+   if checkForBackExit(num) is not None:
+     return checkForBackExit(num)
+     break
+   elif num.lstrip('-').isdigit():
+     return int(num)
+     break
+   elif not num.lstrip('-').isdigit():
+     if num.lower() == 'help':
+       if_help(num, topic)
+     if num.lower() != 'help':
+       print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введене значення не є числом. \
+Cпробуйте ще раз.')
+
+def find_gcd(a, b):
+    if b == 0:
+        return a
+    else:
+        return find_gcd(b, a % b)
+
+               #основні функції:
+def e_mc():
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введіть масу.')
+  user_input = if_help(input('User: '), 'рівняння ейнштейна')
+  save_to_file(filename, user_input)
+  if checkForBackExit(user_input) is not None:
+    return checkForBackExit(user_input)
+  else:
+    if not user_input.isdigit() and user_input.lower() != 'help':
+        print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введене значення не є цифрою.')
+        return e_mc()
+    elif user_input.lower() == 'help':
+        return e_mc()
+    else:
+        print(Fore.LIGHTYELLOW_EX + \
+'Bot Lyra: Результат: Е =',int(user_input)*299792458**2, 'Дж')
+        return 'done!'
+
+def print_gravitational_constant():
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Гравітаційна стала:')
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: G = 6.67384(80)10-11 м3 кг-1 с-2')
+  return 'done!'
+
+def print_pi():
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Число пі:')
+  print(Fore.LIGHTYELLOW_EX+f'Bot Lyra: {math.pi}')
+  return 'done!'
+
+def common_denominator():#нсд
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введіть перше число.')
+  num1 = enter_number('User', 'найбільший спільний дільник')
+  if checkForBackExit(num1) is not None:
+    return checkForBackExit(num1)
+  else:
+    print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введіть друге число.')
+    num2 = enter_number('User', 'найбільший спільний дільник')
+    if checkForBackExit(num2) is not None:
+      return checkForBackExit(num2)
+    else:
+      print(Fore.LIGHTYELLOW_EX+f'Bot Lyra: Найбільший спільний дільник: \
+{str(find_gcd(num1, num2))}')
+      return 'done!'
+
+def common_multiple():
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введіть перше число.')
+  num1 = enter_number('User', 'найменше спільне кратне')
+  if checkForBackExit(num1) is not None:
+    return checkForBackExit(num1)
+  else:
+    print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введіть друге число.')
+    num2 = enter_number('User', 'найменше спільне кратне')
+    if checkForBackExit(num2) is not None:
+      return checkForBackExit(num2)
+    else:
+      gcd = find_gcd(num1, num2)
+      print(Fore.LIGHTYELLOW_EX+\
+f'Bot Lyra: Найменше спільне кратне: {(num1 * num2) // gcd}')
+      return 'done!'
+
+
+def scalar_product(v1, v2):
+    if len(v1) != len(v2):
+      print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Вектори мають різну довжину. \
+Неможливо обчислити скалярний добуток.')
+      return None
+    else:
+      result = 0
+      for i in range(len(v1)):
+          result += v1[i] * v2[i]
+      return result
+
+def enter_coordinate(vector, instr1, instr2, topic):
+  print(Fore.LIGHTYELLOW_EX+f'Bot Lyra: Введіть{instr2} координату {instr1}')
+  num = enter_number('User', topic)
+  if checkForBackExit(num) is not None:
+     return checkForBackExit(num)
+  else:
+     int(num)
+     vector.append(num)
+     return vector
+
+def enter_vector(instruction, topic):
+  vector = []
+  vector = enter_coordinate(vector, instruction, '', topic)
+  if checkForBackExit(vector) is not None:
+      return checkForBackExit(vector)
+  else:
+    while True:
+        print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введення координат закінчене?')
+        user_input = input('User: (так/ні:) ')
+        save_to_file(filename, user_input)
+        if checkForBackExit(user_input) is not None:
+          return checkForBackExit(user_input)
+          break
+        else:
+          if user_input.lower() == 'ні':
+            vector = enter_coordinate(vector, instruction, ' наступну', topic)
+            if checkForBackExit(vector) is not None:
+               return checkForBackExit(vector)
+               break
+          elif user_input.lower() == 'так':
+            return vector
+            break
+          elif user_input.lower() == 'help':
+            if_help(user_input, topic)
+          else:
+            print(Fore.LIGHTYELLOW_EX+\
+'Bot Lyra: Некоректна відповідь. Напишіть \"так\" або \"ні\".')
+
+def sc_product():
+  vector1 = enter_vector('першого вектора', scal_prod_by_coordinates_topic)
+  if checkForBackExit(vector1) is not None:
+    return checkForBackExit(vector1)
+  else: 
+    vector2 = enter_vector('другого вектора', scal_prod_by_coordinates_topic)
+    if checkForBackExit(vector2) is not None:
+      return checkForBackExit(vector2)
+    else:
+      result = scalar_product(vector1, vector2)
+      if result is not None:
+         print(Fore.LIGHTYELLOW_EX+f'Bot Lyra: Cкалярний добуток: {result}')
+         return 'done!'
+      else: 
+         return sc_product()
+
+def sc_product_formula():
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введіть довжину першого вектора')
+  module1 = enter_number('User', scal_prod_by_length_topic)
+  if checkForBackExit(module1) is not None:
+      return checkForBackExit(module1)
+  else:
+      print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введіть довжину другого вектора')
+      module2 = enter_number('User', scal_prod_by_length_topic)
+      if checkForBackExit(module2) is not None:
+         return checkForBackExit(module2)
+      else:
+        print(Fore.LIGHTYELLOW_EX+\
+'Bot Lyra: Введіть кут між векторами (в градусах)')
+        degrees = enter_number('User', scal_prod_by_length_topic)
+        if checkForBackExit(degrees) is not None:
+           return checkForBackExit(degrees)
+        else:
+           cos = round(math.cos(math.radians(degrees)), 5)
+           scal_product = round(abs(module1)*abs(module2)*cos, 5)
+           print(Fore.LIGHTYELLOW_EX+\
+           f'Bot Lyra: Cкалярний добуток: {scal_product}')
+           return 'done!'
+
+def find_distance():
+ pointP = enter_vector('точки', 'відстань від точки до прямої')
+ if checkForBackExit(pointP) is not None:
+     return checkForBackExit(pointP)
+ else:
+     point_A_on_line = enter_vector('точки на прямій', \
+     'відстань від точки до прямої')
+     if checkForBackExit(point_A_on_line) is not None:
+        return checkForBackExit(point_A_on_line)
+     else:
+        point_B_on_line = enter_vector('другої точки на прямій',
+        'відстань від точки до прямої')
+        if checkForBackExit(point_B_on_line) is not None:
+           return checkForBackExit(point_B_on_line)
+        else:
+          if len(pointP)!=len(point_A_on_line)\
+          or len(pointP)!=len(point_B_on_line)\
+          or len(point_A_on_line)!=len(point_B_on_line):
+            print(Fore.LIGHTYELLOW_EX+\
+'Bot Lyra: Точки мають різну кількість координат. Неможливо обчислити.')
+            result = find_distance()
+            if result is not None:
+              return result
+          else:
+            a = [a - b for a, b in zip(pointP, point_A_on_line)]
+            b = [a - b for a, b in zip(pointP, point_B_on_line)]
+            numerator = abs(scalar_product(a, b))
+            if numerator == None:
+              return find_distance()
+            else:
+              y = [a - b for a, b in zip(point_B_on_line, point_A_on_line)]
+              denominator = math.sqrt(sum([x**2 for x in y]))
+              result = round(numerator/denominator, 5)
+              print(Fore.LIGHTYELLOW_EX+\
+f'Bot Lyra: Відстань від точки до прямої: {result}')
+              return 'done!'
+
+def sin_and_cos():
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введіть кут в градусах')
+  x_deg = enter_number('User', 'виведення синуса і косинуса')
+  if checkForBackExit(x_deg) is not None:
+    return checkForBackExit(x_deg)
+  else:
+    cos_x = round(math.cos(math.radians(x_deg)), 5)
+    sin_x = round(math.sin(math.radians(x_deg)), 5)
+    print(Fore.LIGHTYELLOW_EX+f'''Bot Lyra: Синус введеного кута: {sin_x}
+Bot Lyra: Косинус введеного кута: {cos_x}''')
+    return 'done!'
+
+def print_info_sahara():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Сахара, найбільша пустеля в світі, \
+знаходиться в Африці на території таких країн:
+Алжир, Єгипет, Лівія, Мавританія, Малі, Марокко, Нігер, Судан, Туніс, Чад. 
+Географічні координати пустелі:
+23° пн. ш. 12.6° сх. д.''')
+  return 'done!'
+
+def print_info_lakes():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Найбільше озер в світі розташовано на території Канади. 
+Їх налічується більше трьох мільйонів.
+Найбільшими за площею є Великі озера, які є відомою пам'яткою країни.''')
+  return 'done!'
+
+def enter_2_coordinates(instr, topic):
+ n = 0
+ vector = []
+ while True:
+  if n == 0:
+    order = ' першу'
+  else:
+    order = ' другу'
+  print(Fore.LIGHTYELLOW_EX+\
+f'Bot Lyra: Введіть{order} координату {instr}')
+  num = enter_number('User', topic)
+  if checkForBackExit(num) is not None:
+     return checkForBackExit(num)
+     break
+  else:
+     num = int(num)
+     vector.append(num)
+     n = n+1
+     if n == 2:
+       return vector
+       break
+
+def find_coordinates_B():
+  point_A = enter_2_coordinates('точки А', find_B_topic)
+  if checkForBackExit(point_A) is not None:
+    return checkForBackExit(point_A)
+  else:
+    print(Fore.LIGHTYELLOW_EX+\
+'Bot Lyra: Введіть відстань від точки А до точки В.')
+    distance = enter_number('User', find_B_topic)
+    if checkForBackExit(distance) is not None:
+        return checkForBackExit(distance)
+    else:
+     print(Fore.LIGHTYELLOW_EX+\
+'Bot Lyra: Введіть азимут (в градусах) від точки А до точки В.')
+     azimuth = enter_number('User', find_B_topic)
+     if checkForBackExit(azimuth) is not None:
+       return checkForBackExit(azimuth)
+     else:
+       x2 = int(point_A[0] + distance*round(math.cos(math.radians(azimuth)), 5))
+       y2 = int(point_A[1] + distance*round(math.sin(math.radians(azimuth)), 5))
+       point_B = []
+       point_B.append(x2)
+       point_B.append(y2)
+       print(Fore.LIGHTYELLOW_EX+f'Bot Lyra: Координати точки В: {point_B}')
+       return 'done!'
+
+def eng_tenses():
+  print(Fore.LIGHTYELLOW_EX+'''Bot Lyra: В англійській мові є 12 часів. 
+Ось перелік цих часів:
+1. Present Simple
+2. Present Continuous 
+3. Present Perfect Simple
+4. Present Perfect Continuous
+5. Past Simple 
+6. Past Continuous
+7. Past Perfect Simple
+8. Past Perfect Continuous
+9. Future Simple
+10. Future Continuous
+11. Future Perfect Simple
+12. Future Perfect Continuous
+Кожен з цих часів використовується для вираження різних ситуацій. 
+Наприклад, Present Simple використовується для опису загальних фактів, 
+Past Simple - для опису дій, які сталися в минулому, 
+Future Simple - для опису дій, які стануться в майбутньому, 
+а Present Continuous - для дій, які відбуваються в даний момент.''')
+  return 'done!'
+
+def some_and_any():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Основна різниця між "some" та "any" полягає в тому, що 
+'any' використовується для запитань і заперечень, \
+у той час, як 'some' — для тверджень: 
+He bought some apples — Він купив трохи яблук. 
+He didn't buy any apples — Жодних яблук він не придбав.
+Would you like some tea? — Ви хотіли б трохи чаю?''')
+  return 'done!'
+
+def gender_of_nouns_ukr():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: В українській мові граматична категорія роду — 
+одна з морфологічних ознак, що відрізняє іменник від інших частин мови.
+Українські іменники в однині належать до чоловічого, жіночого, \
+середнього та спільного роду.''')
+  return 'done!'
+
+def gas_giants():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: У Сонячній системі газовими гігантами є Юпітер і Сатурн.
+Уран та Нептун також є планетами-гігантами, які часто зараховують до 
+газових гігантів, але їх класифікують як крижані гіганти. 
+В той час як Юпітер і Сатурн - найбільші газові планети, 
+Уран і Нептун мають дещо інший склад.
+- - -
+Газові гіганти складаються головним чином з водню та гелію, 
+а також мають багато супутників і систем кілець. 
+Вони отримали свою назву через великі розміри та газоподібну структуру атмосфер.
+Також, крім газу, такі планети містять порівняно невелике кам'яне ядро.''')
+  return 'done!'
+
+def planet_orbits():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Оскільки орбіти планет є еліптичними, їх відстань до Сонця 
+може змінюватись протягому руху по орбіті. 
+Тому для порівняння відстаней між планетами використовується середня відстань.
+Здійснюючи повний оберт навколо Сонця лише за 88 днів, \
+Меркурій є найближчою до Сонця планетою.
+Відстань від Меркурія до Сонця змінюється від 46,00 до 69,82 млн км.
+Найбільш віддаленою від Сонця є планета Нептун.
+Його середня відстань від Сонця у 30 разів більша, ніж у Землі, 
+і становить приблизно 4.5 млрд. км.
+Нептун повністю проходить свою орбіту аж за 164 земних років!''')
+  return 'done!'
+
+def starlight_influence():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Зірки знаходяться дуже далеко від нашої планети, 
+тому їх світло не дуже суттєво впливає на людей.
+Проте Сонце теж є зіркою, і його свіло має на нас великий вплив.
+Наприклад, ...''')
+  return 'done!'
+
+def days_in_year():
+ print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Введіть рік')
+ year = enter_number('User', 'обчислення кількості днів у вказаному році')
+ if checkForBackExit(year) is not None:
+  return checkForBackExit(year)
+ else:
+  if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
+   print(Fore.LIGHTYELLOW_EX+'Bot Lyra: У цьому році 366 днів.')
+  else:
+   print(Fore.LIGHTYELLOW_EX+'Bot Lyra: У цьому році 365 днів.')
+   return 'done!' 
+
+def yes_or_no():
+  while True:
+   print(Fore.LIGHTYELLOW_EX+\
+'Bot Lyra: Бажаєте продовжити грати?')
+   user_input = input('User: (так/ні:) ')
+   save_to_file(filename, user_input)
+   if user_input.lower() == 'help':
+     if_help(user_input, 'гра "вгадай число"')
+     return yes_or_no()
+     break
+   if checkForBackExit(user_input) is not None:
+     return checkForBackExit(user_input)
+     break
+   else:
+     if user_input.lower() == 'ні':
+            return 'ні'
+            break
+     elif user_input.lower() == 'так':
+            return 'так'
+            break
+     else:
+            print(Fore.LIGHTYELLOW_EX+\
+'Bot Lyra: Некоректна відповідь. Напишіть "так" або "ні".')
+
+def guess_number():
+ trials = 5
+ while True:
+   if trials > 0:
+     print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Вгадайте число між 1 та 10.')
+     target = random.randint(1, 10)
+   if trials <= 0:
+     print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Вгадайте число між 1 та 5.')
+     target = random.randint(1, 5)
+   guess = enter_number('User', 'гра "вгадай число"')
+   if checkForBackExit(guess) is not None:
+     return checkForBackExit(guess)
+     break
+   else:
+     if target == guess:
+       print (Fore.LIGHTYELLOW_EX+'Bot Lyra: Ви вгадали!')
+       print (Fore.LIGHTYELLOW_EX+\
+f'Bot Lyra: Правильна цифра була {target}, ваше число було {guess}')
+       return 'done!'
+       break
+     if target != guess:
+       if target < guess:
+         print (Fore.LIGHTYELLOW_EX+\
+'Bot Lyra: Загадане число виявилося меншим.')
+         print (Fore.LIGHTYELLOW_EX+\
+f'Bot Lyra: Я загадала число {target}, а ваше число було {guess}.')
+       else:
+         print (Fore.LIGHTYELLOW_EX+\
+'Bot Lyra: Загадане число виявилося більшим.')
+         print (Fore.LIGHTYELLOW_EX+\
+f'Bot Lyra: Я загадала число {target}, а ваше число було {guess}.')
+       user_answer = yes_or_no()
+       if checkForBackExit(user_answer) is not None:
+         return checkForBackExit(user_answer)
+         break
+       elif user_answer == 'ні':
+         return 'done!'
+         break
+       else:
+         trials = trials - 1
+         if trials == 0:
+           print(Fore.LIGHTYELLOW_EX+\
+             '''Bot Lyra: Я бачу, вам важко вгадати число від 1 до 10. 
+Спробуйте вгадати число від 1 до 5.''')
+
+poem_1 = Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Вахляром проміння впало,
+Сріблом хвилі облило.
+Дужче море заспівало,
+На скрипках, басах заграло.
+Густо в бубни затуло.
+В шумі білому біліє,
+Мов вишневий сад цвіте,
+А над морем вітер віє,
+Хвилі крилами леліє
+І на берег цвіт мете.
+          Олександр Олесь'''
+poem_2 = Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Буває, часом сліпну від краси.
+Спинюсь, не тямлю, що воно за диво,—
+оці степи, це небо, ці ліси,
+усе так гарно, чисто, незрадливо,
+усе як є — дорога, явори,
+усе моє, все зветься — Україна.
+Така краса, висока і нетлінна,
+що хоч спинись і з Богом говори.
+          Ліна Костенко'''
+poem_3 = Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Блакитний світ — як блекота,
+Блакитний світ — звечірнів.
+З тобою ж — тільки той і та,
+і тільки те, що вірне.
+Чи йми їм віри чи не йми —
+вони живуть, як п’ють.
+Живуть сами і ждуть сами,
+сами себе кують.
+А все те — хто ти, що ти сам,
+а все те — ким би стати? —
+Однаково: філософом
+чи й до отари пастирем.
+Однаковісінько. Пусте.
+Живеш — і жий, і доста.
+Коли ти сам собі ростеш,
+і сам себе не просиш.
+Бо є і зорі угорі,
+і небо є вечірнє.
+І є поріг, низький, як гріх,
+тобі єдино вірний.
+          Василь Стус'''
+poem_4 = Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: У пущах, де лише стежки звірині,
+Серед потворно сплетених гілок
+Буває в небо просвіт темно-синій,
+Як любе око. Скрізь таємний змрок.
+
+Гудіння сосн, як виття ериній,
+Шкребіння кігтів рисі, молоток
+Старого дятла. Стомленій людині
+Так любо стрінуть затишний куток,
+
+Прозорий погляд милого спокою,
+Де часом перемінною юрбою
+Проплине хмарок сріблотканний дим.
+
+Так ти, мистецтво, серед бур і змроку
+Сіяєш мислям і серцям людським, —
+У темнім морі променисте око.
+          Максим Рильський'''
+poem_5 = Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: …І третя ніч пливе над яворами.
+Десь тиша Ворсклу переходить вбрід.
+“Вартуй! Вартуй!” – з Курилівської брами.
+“Вартуй! Вартуй!” – від Київських воріт.
+Чогось так сумно, так протягло й лунко.
+Стоять залиті місяцем двори.
+Стара Полтава, як стара чаклунка,
+іде із клунком темної гори.
+          Ліна Костенко (з поеми "Маруся Чурай")'''
+
+def random_poem():
+  poem_nuber = random.randint(0, 4)
+  poems = [poem_1, poem_2, poem_3, poem_4, poem_5]
+  print (poems[poem_nuber])
+  return 'done!'
+
+def noun_gender(name):
+  name = list(name)
+  if name[len(name) - 1] == 'а' or name[len(name) - 1] == 'я':
+    gender = 'fem'
+  else:
+    gender = 'male or neuter'
+  return gender
+
+def story():
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Гра «історія»: я задаю кілька питань, \
+і підставляю ваші відповіді на них в готовий текст.')
+  print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Хто?')
+  who = input('User: ')
+  save_to_file(filename, who)
+  if checkForBackExit(who) is not None:
+    return checkForBackExit(who)
+  else:
+   print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Де?')
+   where = input('User: ')
+   save_to_file(filename, where)
+   if checkForBackExit(where) is not None:
+    return checkForBackExit(where)
+   else:
+    print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Коли?')
+    when = input('User: ')
+    save_to_file(filename, when)
+    if checkForBackExit(when) is not None:
+     return checkForBackExit(when)
+    else:
+     print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Навіщо?')
+     why = input('User: ')
+     save_to_file(filename, why)
+     if checkForBackExit(why) is not None:
+      return checkForBackExit(why)
+     else:
+      print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Що?')
+      what = input('User: ')
+      save_to_file(filename, what)
+      if checkForBackExit(what) is not None:
+       return checkForBackExit(what)
+      else:
+       text_1 = [Fore.LIGHTYELLOW_EX+f'''Bot Lyra: {who} прийшла {where}. 
+{when}, {why}, вона вирішила пошукати {what}.''', 
+Fore.LIGHTYELLOW_EX+f'''Bot Lyra: {who} прийшов у {where}. {when}, {why}, \
+він вирішив пошукати {what}.''']
+       text_2 = [Fore.LIGHTYELLOW_EX+f'''Bot Lyra: {who} жила {where}. 
+{when} вона вирішила відправитися у подорож, {why}. 
+З собою вона взяла {what}.''', 
+Fore.LIGHTYELLOW_EX+f'''Bot Lyra: {who} жив {where}. 
+{when} він вирішив відправитися у подорож, {why}. 
+З собою він взяв {what}.''']
+       text_3 = [Fore.LIGHTYELLOW_EX+\
+f'''Bot Lyra: Одного разу {who} отримала лист із загадкового місця \
+"{where}" із запрошенням прийти туди {when}. 
+Вона думала, що її запросили {why}, але виявилося її запросили \
+щоб подарувати {what}.''',
+Fore.LIGHTYELLOW_EX+\
+f'''Bot Lyra: Одного разу {who} отримав лист із загадкового місця "{where}" \
+із запрошенням прийти туди {when}. 
+Він думав, що його запросили {why}, але виявилося його запросили \
+щоб подарувати {what}.''']
+       text_4 = [Fore.LIGHTYELLOW_EX+\
+f'''Bot Lyra: {who} вирішила поїхати на канікули у {where}. 
+{when}, коли прийшов час їхати, вона {why} купила {what}.''',
+Fore.LIGHTYELLOW_EX+f'''Bot Lyra: {who} вирішив поїхати на канікули у {where}. 
+{when}, коли прийшов час їхати, він {why} купив {what}.''']
+       text_5 = [Fore.LIGHTYELLOW_EX+f'''Bot Lyra: {who} пішла у {where}, 
+бо {when} їй треба було, {why}, вкрасти {what}.''',
+Fore.LIGHTYELLOW_EX+f'''Bot Lyra: {who} пішов у {where}, 
+бо {when} йому треба було, {why}, вкрасти {what}.''']
+       text_nuber = random.randint(0, 4)
+       texts_list = [text_1, text_2, text_3, text_4, text_5]
+       gender = noun_gender(who)
+       if gender == 'fem':
+         print(texts_list[text_nuber][0])
+       else:
+         print(texts_list[text_nuber][1])
+       return 'done!'
+
+def say_my_name():
+  print(Fore.LIGHTYELLOW_EX+'''Bot Lyra: Ідеєю для мого імені слугувала пісня,\
+ в якій згадувалось таке ім'я.''')
+  return 'done!'
+
+def info_what_is_variable():
+ print(Fore.LIGHTYELLOW_EX+'''Bot Lyra: Змінна в Python - це ім'я, \
+яке використовується для зберігання значення. 
+Крім ім'я і значення, змінна також має тип. 
+Значення змінної можна змінювати під час роботи програми.
+Змінна створюється в той момент, коли ви вперше присвоюєте їй значення.
+Змінні не потрібно оголошувати з певним типом, і вони можуть навіть
+змінити тип після того, як їх було встановлено.''')
+ return 'done!'
+
+def info_binary_operators():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Python підтримує багато бінарних операторів, 
+таких як +, -, *, /, %, \
+//, **, <, >, <=, >=, ==, !=, and, or та інші. ''')
+  return 'done!'
+
+def how_operator_in_works():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Оператор in використовується для 
+перевірки наявності елемента в послідовності, 
+такій як рядок, список або кортеж. Наприклад: "a" in "apple" поверне True.''')
+  return 'done!'
+
+def colors_in_colorama():
+  print(Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: У бібліотеці colorama є наступні кольори та стилі:
+Кольори:''')
+  print(Fore.BLACK+'BLACK')
+  print(Fore.RED+'RED')
+  print(Fore.GREEN+'GREEN')
+  print(Fore.YELLOW+'YELLOW')
+  print(Fore.BLUE+'BLUE')
+  print(Fore.MAGENTA+'MAGENTA')
+  print(Fore.CYAN+'CYAN')
+  print(Fore.WHITE+'WHITE')
+  print(Fore.LIGHTYELLOW_EX+\
+'RESET (повертає колір до стандартного)')
+  print(Fore.LIGHTYELLOW_EX+'Стилі:')
+  print(Style.NORMAL+'NORMAL')
+  print(Style.BRIGHT+'BRIGHT')
+  print(Style.DIM+'DIM')
+  print(Style.RESET_ALL+'RESET_ALL (повертає до стандартного)')
+  print(Fore.LIGHTYELLOW_EX+\
+'''Використання цих кольорів та стилів дозволяє змінювати колір тексту та фону, 
+а також додавати різні стилі до тексту в консольних програмах на Python.''')
+  return 'done!'
+
+unknown = Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Вибачте, я не зрозуміла. 
+Перефразуйте свою відповідь, будь ласка.'''
+
+unknown_topic = 'не вдалося визначити тему'
+
+
+#функції для розпізнавання повідомлень:
+def check_input(split_input):
+  list_of_probability = {}
+  def determine(split_input, topic, key_words, single_response, reqired_words):
+    nonlocal list_of_probability
+    list_of_probability[topic] =\
+    message_probability(split_input, key_words, single_response, reqired_words)
+
+  determine(split_input, 'математика',\
+  ['математику','математика','математики'], \
+  single_response=True,reqired_words=[])
+  determine(split_input, 'фізика',\
+  ['фізику','фізика','фізики'], single_response=True, reqired_words=[])
+  determine(split_input, 'географія',\
+  ['географія','географію','географії'],\
+  single_response=True, reqired_words=[])
+  determine(split_input, 'філологія',\
+  ['філологія','філології','філологію'], \
+  single_response=True, reqired_words=[])
+  determine(split_input, 'астрономія',\
+  ['астрономія','астрономію','астрономії'],\
+  single_response=True, reqired_words=[])
+  determine(split_input, 'загальні запитання',\
+  ['загальні', 'запитання','питання','питань', 'загальних'],\
+  single_response=True, reqired_words=[])
+  determine(split_input, 'програмування',\
+  ['програмування'], single_response=False, reqired_words=['програмування'])
+
+  determine(split_input, gcd_or_lcm_topic,\
+  ['найбільший', 'дільник', 'чи', 'найменше','кратне','нск', 'нсд'],\
+  single_response=True, reqired_words=[])
+  determine(split_input, 'найбільший спільний дільник',\
+  ['найбільший', 'спільний','дільник','нсд'],\
+  single_response=True, reqired_words=[])
+  determine(split_input, 'найменше спільне кратне',\
+  ['найменше', 'спільне','кратне','нск'],\
+  single_response=True, reqired_words=[])
+  determine(split_input, 'виведення числа пі',\
+  ['вивести', 'виведення','число','числа', 'p', 'пі'],\
+  single_response=True, reqired_words=[])
+  determine(split_input, 'cкалярний добуток',\
+  ['cкалярний', 'добуток', 'cкалярного', 'добутку'], \
+  single_response=True, reqired_words=[])
+  determine(split_input, scal_prod_by_length_topic,\
+  ['cкалярний', 'добуток', 'cкалярного', 'добутку', 'за', 'довжиною', 'довжина', 'кутом', 'кут'], \
+  single_response=True, reqired_words=[])
+  determine(split_input, scal_prod_by_coordinates_topic,\
+  ['cкалярний', 'добуток', 'cкалярного', 'добутку', 'за', 'координатами', 'координати'], \
+  single_response=True, reqired_words=[])
+  determine(split_input, 'обчислення відстані',\
+  ['відстані', 'відстань'], single_response=True, reqired_words=[])
+  determine(split_input, 'виведення синуса і косинуса',\
+  ['синус', 'косинус', 'sin', 'cos',], single_response=True, reqired_words=[])
+
+  determine(split_input, 'рівняння ейнштейна',\
+  ['рівняння', 'ейнштейна'], single_response=False, reqired_words=['ейнштейна'])
+  determine(split_input, 'гравітаційна стала',\
+  ['гравітаційна', 'стала', 'гравітаційну', 'сталу'],\
+  single_response=True, reqired_words=[])
+  
+  determine(split_input, 'найбільша пустеля',\
+  ['найбільша', 'пустеля', 'де', 'знаходиться', 'сахара'],\
+  single_response=True, reqired_words=[])
+  determine(split_input, 'найбільша кількість озер',\
+  ['де', 'найбільша', 'найбільше', 'кількість', 'озер'],\
+  single_response=False, reqired_words=['озер'])
+  determine(split_input, find_B_topic,\
+  ['знайти','координати', 'точки', 'відомо', 'відстань', 'за', 'відстанню', 'до'], \
+  single_response=False, reqired_words=['координати', 'точки'])
+
+  determine(split_input, 'часи в англійській мові',\
+  ['які', 'часи', 'є', 'в', 'англійській', 'мові'],\
+  single_response=False, reqired_words=['часи'])
+  determine(split_input, 'різниця між some та any',\
+  ['яка', 'різниця', 'між', 'some', 'any'],\
+  single_response=False, reqired_words=['some', 'any'])
+  determine(split_input, 'роди іменників, що існують в українській мові',\
+  ['які', 'рід', 'роди', 'іменників', 'українській', 'мові', 'мови'],\
+  single_response=False, reqired_words=['іменників'])  
+
+  determine(split_input, 'газові гіганти',\
+  ['планети', 'є', 'газовими', 'гігантами', 'газові', 'гіганти', \
+  'сонячній', 'системі'], single_response=True, reqired_words=[]) 
+  determine(split_input, 'планети з найбільшою та найменшою орбітами',\
+  ['які','планети','найбільшою','найменшою','орбітами','орбіти','мають',\
+  'сонячній','системі'], single_response=True, reqired_words=[])
+  determine(split_input, 'вплив зоряного світла на людину',\
+  ['як','зоряне','світло','впливає', 'людину', 'вплив', 'зоряного', 'світла'],\
+  single_response=True, reqired_words=[])
+
+  determine(split_input, 'обчислення кількості днів у вказаному році',\
+  ['скільки','днів', 'цьому', 'році', 'рік'], \
+  single_response=False, reqired_words=['днів'])
+  determine(split_input, 'гра "вгадай число"',\
+  ['пограти','гра', 'гру', 'вгадай', 'число'], \
+  single_response=False, reqired_words=['число', 'вгадай'])
+  determine(split_input, 'вірші',\
+  ['зачитай', 'розкажи','вірш', 'вірші'], \
+  single_response=True, reqired_words=[])
+  determine(split_input, 'гра "історія"',\
+  ['пограти','гра', 'гру', 'історія'], \
+  single_response=False, reqired_words=['історія'])
+  determine(split_input, 'історія мого імені',\
+  ['чому','тебе', 'назвали','лайра'], \
+  single_response=False, reqired_words=['лайра'])
+  
+  determine(split_input, 'змінна',\
+  ['що','таке', 'змінна'], single_response=False, reqired_words=['змінна'])
+  determine(split_input, 'бінарні оператори',\
+  ['що','таке', 'бінарні', 'оператори'], \
+  single_response=False, reqired_words=['бінарні', 'оператори'])
+  determine(split_input, 'оператор in',\
+  ['як','працює', 'оператор', 'in', 'ін'], \
+  single_response=False, reqired_words=['оператор'])
+  determine(split_input, 'кольори в бібліотеці colorama',\
+  ['які', 'кольори','бібліотеці', 'бібліотека', 'colorama'], \
+  single_response=False, reqired_words=['colorama'])
+
+  most_likely_topic = max(list_of_probability, key = list_of_probability.get)
+  return most_likely_topic if list_of_probability[most_likely_topic]>0.5 else unknown_topic
+
+def message_probability(split_input, key_words, single_response=False, reqired_words=[]):
+  message_certainty = 0
+  has_reqired_words = True
+  for word in split_input:
+    if word in key_words:
+      message_certainty = message_certainty+1
+  percent_of_probability = int(message_certainty)/int(len(key_words))*100
+  for word in reqired_words:
+    if word not in split_input:
+      has_reqired_words = False
+  if single_response==True or has_reqired_words==True:
+    return int(percent_of_probability)
+  else:
+    return 0
+
+previous_topic_dict = {'меню':'меню',
+                          
+                       'математика':'меню',
+                       'фізика':'меню',
+                       'географія':'меню',
+                       'філологія':'меню',
+                       'астрономія':'меню',
+                       'загальні запитання':'меню',
+                       'програмування':'меню',
+
+gcd_or_lcm_topic:'математика',
+'найбільший спільний дільник':gcd_or_lcm_topic,
+'найменше спільне кратне':gcd_or_lcm_topic,
+'виведення числа пі':'математика',
+'обчислення відстані':'математика',
+'виведення синуса і косинуса':'математика',
+'cкалярний добуток':'математика',
+
+scal_prod_by_length_topic:'cкалярний добуток',
+scal_prod_by_coordinates_topic:'cкалярний добуток',
+
+                       'рівняння ейнштейна':'фізика',
+                       'гравітаційна стала':'фізика',
+
+                       'найбільша пустеля':'географія',
+                       'найбільша кількість озер':'географія',
+find_B_topic:'географія',
+
+'часи в англійській мові':'філологія',
+'різниця між some та any':'філологія',
+'роди іменників, що існують в українській мові':'філологія',
+
+'газові гіганти':'астрономія',
+'планети з найбільшою та найменшою орбітами':'астрономія',
+'вплив зоряного світла на людину':'астрономія',
+
+'обчислення кількості днів у вказаному році':'загальні запитання',
+'гра "вгадай число"':'загальні запитання',
+'вірші':'загальні запитання',
+'гра "історія"':'загальні запитання',
+'історія мого імені':'загальні запитання',
+
+'змінна':'програмування',
+'бінарні оператори':'програмування',
+'оператор in':'програмування',
+'кольори в бібліотеці colorama':'програмування'}
+
+
+greeting_msg = Fore.LIGHTYELLOW_EX+'''Bot Lyra: Привіт, мене звати Лайра. '''
+
+goodbye_msg = Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Рада була поспілкуватися. До зустрічі.'''
+
+topic_is_not_here = Fore.LIGHTYELLOW_EX+\
+'''Bot Lyra: Вибачте, ця тема знаходиться в іншому розділі. 
+Оберіть одну з тем, які я навела вище.'''
+
+you_chose = '''Bot Lyra: Ви обрали тему'''
+topics = '''Ви можете задати мені питання з наступних тем:'''
+
+menu_msg = Fore.LIGHTYELLOW_EX+f'''Bot Lyra: {topics}
+математика, фізика, філологія, географія, загальні запитання, астрономія, програмування. 
+Будь ласка, виберіть тему.'''
+
+math_msg = Fore.LIGHTYELLOW_EX+f'''{you_chose} "математика". 
+{topics}
+обчислити найбільший спільний дільник чи найменше спільне кратне,
+виведення числа пі,
+обчислення відстані від точки до прямої,
+виведення синуса і косинуса,
+обчислення скалярного добутку.'''
+
+phys_msg = Fore.LIGHTYELLOW_EX+f'''{you_chose}  "фізика". 
+{topics}
+рівняння ейнштейна,
+гравітаційна стала.'''
+
+geo_msg = Fore.LIGHTYELLOW_EX+f'''{you_chose}  "географія".
+{topics}
+найбільша пустеля,
+найбільша кількість озер,
+{find_B_topic}'''
+
+phyl_msg = Fore.LIGHTYELLOW_EX+f'''{you_chose}  "філологія".
+{topics}
+часи в англійській мові,
+різниця між some та any,
+роди іменників, що існують в українській мові.'''
+
+astr_msg = Fore.LIGHTYELLOW_EX+f'''{you_chose}  "астрономія".
+{topics}
+газові гіганти,
+планети з найбільшою та найменшою орбітами,
+вплив зоряного світла на людину.'''
+
+gen_msg = Fore.LIGHTYELLOW_EX+f'''{you_chose}  "загальні запитання".
+{topics}
+обчислення кількості днів у вказаному році,
+гра "вгадай число",
+вірші,
+гра "історія",
+історія мого імені.'''
+
+progr_msg = Fore.LIGHTYELLOW_EX+f'''{you_chose}  "програмування".
+{topics}
+змінна,
+бінарні оператори,
+оператор in,
+кольори в бібліотеці colorama.'''
+
+gcd_or_lcm_msg = Fore.LIGHTYELLOW_EX+f'''{you_chose} "{gcd_or_lcm_topic}".
+Оберіть, що ви хочете обчислити: найбільший спільний дільник чи найменше спільне кратне.'''
+
+scal_prod_msg = Fore.LIGHTYELLOW_EX+f'''{you_chose} "обчислення скалярного добутку".
+Оберіть, як ви хочете його обчислити: 
+за координатами векторів чи за довжиною векторів і кутом.'''
+
+#словник тем і їх функцій-відповідей:
+topic_answers_dict = {'меню':menu_msg,
+                   'математика':math_msg,
+                   'фізика':phys_msg,
+                   'географія':geo_msg,
+                   'філологія':phyl_msg,
+                   'астрономія':astr_msg,
+                   'загальні запитання':gen_msg,
+                   'програмування':progr_msg,
+                   
+                gcd_or_lcm_topic:gcd_or_lcm_msg,
+                'найбільший спільний дільник':common_denominator,
+                'найменше спільне кратне':common_multiple,
+                'cкалярний добуток':scal_prod_msg,
+                scal_prod_by_length_topic:sc_product_formula,
+                scal_prod_by_coordinates_topic:sc_product,
+                   'виведення числа пі':print_pi,
+                   'обчислення відстані':find_distance,
+                   'виведення синуса і косинуса':sin_and_cos,
+
+                   'рівняння ейнштейна':e_mc,
+                   'гравітаційна стала':print_gravitational_constant,
+
+                   'найбільша пустеля':print_info_sahara,
+                   'найбільша кількість озер':print_info_lakes,
+                   find_B_topic:find_coordinates_B,
+                   'часи в англійській мові':eng_tenses,
+                   'різниця між some та any':some_and_any,
+           'роди іменників, що існують в українській мові':gender_of_nouns_ukr,
+
+                   'газові гіганти':gas_giants,
+                   'планети з найбільшою та найменшою орбітами':planet_orbits,
+                   'вплив зоряного світла на людину':starlight_influence,
+
+                   'обчислення кількості днів у вказаному році':days_in_year,
+                   'гра "вгадай число"':guess_number,
+                   'вірші':random_poem,
+                   'гра "історія"':story,
+                   'історія мого імені':say_my_name,
+
+                   'змінна':info_what_is_variable,
+                   'бінарні оператори':info_binary_operators,
+                   'оператор in':how_operator_in_works,
+                   'кольори в бібліотеці colorama':colors_in_colorama}
+
+random_comments_dict = {'математика':Fore.LIGHTYELLOW_EX+\
+                        '''Bot Lyra: Всі зазвичай обирають цю тему...''',
+                        'фізика':Fore.LIGHTYELLOW_EX+\
+                        'Bot Lyra: Доволі цікавий вибір теми.',
+                        'географія':Fore.LIGHTYELLOW_EX+\
+                        'Bot Lyra: Географія - досить цікава наука.',
+                        'філологія':Fore.LIGHTYELLOW_EX+\
+                        'Bot Lyra: Філологія - гарний вибір теми.',
+                        'астрономія':Fore.LIGHTYELLOW_EX+\
+                    'Bot Lyra: Астрономія - одна з найцікавіших тем в науці.',
+                        'загальні запитання':Fore.LIGHTYELLOW_EX+\
+                        'Bot Lyra: Це моя улюблена тема.',
+                        'програмування':Fore.LIGHTYELLOW_EX+\
+                        'Bot Lyra: Цікавитися програмуванням - це круто!'}
+
+def random_comment(topic):
+   probability_of_comment = random.randint(0, 10)
+   if probability_of_comment > 5:
+      if topic in random_comments_dict:
+         print(random_comments_dict[topic])
+
+def if_help(user_msg, topic):
+                             
+ if user_msg.lower() == 'help':
+   if topic == 'меню':
+     print(Fore.LIGHTYELLOW_EX+f'''Bot Lyra: Bи на темі «{topic}». 
+Для виходу, напишіть «exit».''')
+   else:
+     print(Fore.LIGHTYELLOW_EX+f'''Bot Lyra: Bи на темі «{topic}». 
+Для виходу, напишіть «exit». 
+Для повернення до останньої теми напишіть «back».''')
+   return user_msg
+ else:
+  return user_msg
+
+curse_words = ['блін', 'зараза', 'трясця', 'чорт', 'йолки', 'чорта']
+def check_for_cursewords(curse_words, split_input):
+  count = 0
+  for curse_word in curse_words:
+    count += split_input.count(curse_word)
+  if count>0 and count<3:
+    print(Fore.MAGENTA+'Bot Lyra: Не лайтеся на мене...')
+  if count>3 and count<6:
+    print(Fore.MAGENTA+'Bot Lyra: Судячи з кількості лайливих слів, \
+ви чимось дуже незадоволені...')
+  if count>6 or count==6:
+    print(Fore.MAGENTA+'Bot Lyra: Схоже, ви вирішили перевірити \
+скільки лайливих слів можна написати за один раз.')
+
+
+def start_talk(user_input):
+ topic = 'меню'
+
+ def get_user_topic(user_input):
+  if user_input.lower() == 'help':
+   user_input = if_help(input("User: "), topic)
+   save_to_file(filename, user_input)
+   if checkForBackExit(user_input) is not None:
+         return checkForBackExit(user_input)
+   else:
+      return get_user_topic(user_input)
+  else:
+    split_input = re.split(r'\s+|[,;?!.-]\s*', user_input.lower())
+    check_for_cursewords(curse_words, split_input)
+    user_topic = check_input(split_input)
+    print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Визначена тема:', user_topic)
+    if user_topic != unknown_topic:
+      return user_topic
+    while user_topic == unknown_topic:
+      print(unknown)
+      user_input = if_help(input("User: "), topic)
+      save_to_file(filename, user_input)
+      if checkForBackExit(user_input) is not None:
+         return checkForBackExit(user_input)
+         break
+      else:
+         user_topic = get_user_topic(user_input)
+         if user_topic != unknown_topic:
+           return user_topic
+           break
+ 
+ def forward (user_input, current_topic):
+       topic_of_usermsg = get_user_topic(user_input)
+       if checkForBackExit(topic_of_usermsg) is not None:
+           return checkForBackExit(topic_of_usermsg)
+       else:
+        if previous_topic_dict[topic_of_usermsg] == current_topic:
+           answer = topic_answers_dict[topic_of_usermsg]
+           nonlocal topic
+           topic = topic_of_usermsg #обновляє тему
+           random_comment(topic)
+           if callable(answer):
+                flag = answer()#prints answer (func)
+                if flag == 'exit':
+                       user_input = 'exit'
+                       return user_input
+                elif flag == 'back':
+                       user_input = 'back'
+                       return user_input
+                elif flag == 'done!':
+                       user_input, topic = back(topic)
+                       return user_input
+           else:
+                print(answer)#prints answer
+                user_input = if_help(input("User: "), topic)
+                save_to_file(filename, user_input)
+                return user_input
+                 
+        else:
+          print(topic_is_not_here)
+          user_input = if_help(input("User: "), topic)
+          save_to_file(filename, user_input)
+          return user_input
+      
+ def back(current_topic):
+   print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Ви знаходилися на темі:', current_topic)
+   nonlocal topic
+   topic = previous_topic_dict[current_topic]
+   print(Fore.LIGHTYELLOW_EX+'Bot Lyra: Ви повертаєтеся до теми:', topic)
+   answer = topic_answers_dict[topic]
+   random_comment(topic)
+   if callable(answer):
+            flag = answer()#prints answer (func)
+            if flag == 'exit':
+                 user_input = 'exit'
+                 return user_input, topic
+            elif flag == 'back':
+                   user_input = 'back'
+                   return user_input, topic
+            elif flag == 'done!':
+                   user_input, topic = back(topic)
+                   return user_input, topic
+   else:
+            print(answer)#prints answer
+            user_input = if_help(input("User: "), topic)
+            save_to_file(filename, user_input)
+            return user_input, topic 
+        
+ while True:
+    if user_input.lower() == 'exit':
+       print(goodbye_msg)
+       break
+    elif user_input.lower() == 'back':
+       user_input, topic = back(topic)
+    else:
+       user_input = forward(user_input, topic)
+
+
+
+@contextmanager
+def tee_output(file):
+    class Tee:
+        def __init__(self, file):
+            self.file = file
+            self.stdout = sys.stdout
+
+        def write(self, data):
+            self.file.write(data)
+            self.stdout.write(data)
+
+        def flush(self):
+            self.file.flush()
+            self.stdout.flush()
+
+    tee = Tee(file)
+    sys.stdout = tee
+    try:
+        yield tee
+    finally:
+        sys.stdout = tee.stdout
+
+#відкривається файл для запису
+with open(filename, 'a') as f:
+    #`tee_output` використовується як контекстний менеджер
+    with tee_output(f):
+
+       print(greeting_msg)
+       print(menu_msg)
+       user_input = if_help(input("User: "), 'меню')
+       save_to_file(filename, user_input)
+       start_talk(user_input)
